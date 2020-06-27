@@ -1,5 +1,5 @@
 from collections import Counter
-from random import shuffle
+from random import shuffle, choice
 from enum import Enum
 
 
@@ -67,19 +67,19 @@ class Poker:
         best_score = max((key(e) for e in iterable))
         return [el for el in iterable if key(el) == best_score], best_score
 
-    def deal(self, players_count, player_cards=5, shared_cards=0, deck=DECK[:]):
+    @staticmethod
+    def deal(players, player_cards=2, deck=DECK[:]):
         shuffle(deck)
-        return (
-            [
-                deck[i * player_cards : i * player_cards + player_cards]
-                for i in range(players_count)
-            ],
-            deck[
-                players_count * player_cards : players_count * player_cards
-                + shared_cards
-            ],
-            deck[players_count * player_cards + shared_cards :],
-        )
+        hands = [
+            deck[i * player_cards : i * player_cards + player_cards]
+            for i in range(len(players))
+        ]
+
+        for player, hand in zip(players, hands):
+            player.cards = hand
+
+        rest_of_the_deck = deck[len(players) * player_cards :]
+        return rest_of_the_deck
 
     def poker(self, players, player_cards, shared_cards):
         players_cards, shared, _ = self.deal(
@@ -91,52 +91,14 @@ class Poker:
         winners, (score, ranks) = self.allmax(hands, key=self.hand_rank)
         print(f"The winner is {winners} with {self.Scores(score).name}, {ranks}!")
 
+    def showdown(self, players, shared_cards):
+        players_by_cards = {tuple(player.cards + shared_cards):player for player in players}
+        winner_hands, (score, ranks) = self.allmax(players_by_cards.keys(), key=self.hand_rank)
+        winners = [players_by_cards[tuple(winner_hand)] for winner_hand in winner_hands]
+        return winners, score, ranks
+
     def classic_poker(self, players):
         return self.poker(players, player_cards=5, shared_cards=0)
 
     def hold_em_poker(self, players):
         return self.poker(players, player_cards=2, shared_cards=5)
-
-    def play(self):
-        number_of_players = int(input("How many players? ") or 2)
-
-        bet = 0
-
-        players_cards, _, rest_of_the_deck = self.deal(
-            number_of_players, player_cards=2
-        )
-
-        your_cards, *others_cards = players_cards
-        print(f"Your cards are: {' '.join(your_cards)}")
-
-        bet += int(input("Your bet: ") or 0)
-        rest_of_the_deck.pop(0)
-        flop, rest_of_the_deck = rest_of_the_deck[:3], rest_of_the_deck[3:]
-        print(f"The FLOP: {' '.join(flop)}")
-
-        bet += int(input("Your bet: ") or 0)
-        rest_of_the_deck.pop(0)
-        turn = rest_of_the_deck.pop(0)
-        print(f"The TURN: {turn}")
-
-        bet += int(input("Your bet: ") or 0)
-        rest_of_the_deck.pop(0)
-        river = rest_of_the_deck.pop(0)
-        print(f"And the RIVER: {river}")
-
-        bet += int(input("Your bet: ") or 0)
-        shared = flop + [turn] + [river]
-
-        your_hand = your_cards + shared
-        hands = [private + shared for private in players_cards]
-        winners, (score, ranks) = self.allmax(hands, key=self.hand_rank)
-        print(f"Other players have: {', '.join(' '.join(cards) for cards in others_cards)}")
-        print(
-            f"The winner{' is' if len(winners) == 1 else 's are'} {' '.join([' '.join(w[:2]) for w in winners])} with {self.Scores(score).name}!"
-        )
-        if your_hand in winners:
-            print(f"Congratulations! You won ${bet*number_of_players}")
-        else:
-            print(f"You suck! You lost ${bet}")
-
-Poker().play()
