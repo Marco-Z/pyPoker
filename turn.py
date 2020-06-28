@@ -55,8 +55,13 @@ class PokerTurn:
             == 1
         )
 
+    def playing_players(self):
+        return [p for p in self.in_game_players() if not p.is_all_in()]
+
     def is_completed(self):
-        return self.is_even() and set(self.in_game_players()) == self.calling_players
+        are_all_players_calling = set(self.in_game_players()) == self.calling_players
+        are_all_bets_even = self.is_even()
+        return (are_all_bets_even and are_all_players_calling) or (are_all_bets_even and len(self.playing_players()) < 2)
 
     def do(self, action, player=None):
         player = player or self.current_player

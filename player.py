@@ -40,6 +40,9 @@ class Player:
             Action.ALL_IN if turn_bet >= player_bet and self.money > 0 else None,
         ]
 
+    def is_all_in(self):
+        return self.money == 0
+
     def _can_call(self, turn_bet, player_bet):
         return turn_bet > player_bet and self.money > turn_bet - player_bet
 

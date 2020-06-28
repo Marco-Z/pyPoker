@@ -106,8 +106,10 @@ class Round:
             "=" * 80,
             "Everybody else folded",
             "=" * 80,
-            f"Shared cards: {', '.join(self.shared_cards)}" if self.shared_cards else None,
-            f"The winner is {in_game_players[0].name}!"
+            f"Shared cards: {', '.join(self.shared_cards)}"
+            if self.shared_cards
+            else None,
+            f"The winner is {in_game_players[0].name}!",
         ]
         print("\n".join([line for line in display if line]))
 
@@ -123,7 +125,7 @@ class Round:
         if len(self.in_game_players()) == 1:
             return self.early_winner()
         self.update_turn_status()
-    
+
     def update_turn_status(self):
         if self.current_turn.is_completed():
             self._end_this_turn()
@@ -131,6 +133,8 @@ class Round:
                 self.in_game_players(), self.deck, self.starting_player()
             )
             self.shared_cards += shared_cards
+            if not self.is_finished:
+                self.update_turn_status()
 
     def do(self, action, player=None, turn=None):
         turn = turn or self.current_turn
