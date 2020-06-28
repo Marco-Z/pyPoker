@@ -66,9 +66,8 @@ class Player:
                 return self.bet(int(input("Bet: ")))
             if action == Action.RAISE:
                 return (
-                    turn_bet
+                    self.bet(turn_bet + int(input(f"Raise: {turn_bet} + ")))
                     - player_bet
-                    + self.bet(int(input(f"Raise: {turn_bet} + ")))
                 )
             if action == Action.CHECK:
                 return 0
