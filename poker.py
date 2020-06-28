@@ -9,7 +9,7 @@ class Poker:
     SUITS = "♠♣♥♦"
     DECK = [r + s for r in RANKS for s in "♠♣♥♦"]
 
-    class Scores(Enum):
+    class Score(Enum):
         ROYAL_FLUSH = 9
         POKER = 7
         FULL_HOUSE = 6
@@ -21,19 +21,19 @@ class Poker:
         HIGH_CARD = 0
 
     count_rankings = {
-        (4, 1): Scores.POKER.value,
-        (3, 2): Scores.FULL_HOUSE.value,
-        (3, 1, 1): Scores.THREE_OF_A_KIND.value,
-        (2, 2, 1): Scores.DOUBLE_PAIR.value,
-        (2, 1, 1, 1): Scores.PAIR.value,
-        (1, 1, 1, 1, 1): Scores.HIGH_CARD.value,
+        (4, 1): Score.POKER.value,
+        (3, 2): Score.FULL_HOUSE.value,
+        (3, 1, 1): Score.THREE_OF_A_KIND.value,
+        (2, 2, 1): Score.DOUBLE_PAIR.value,
+        (2, 1, 1, 1): Score.PAIR.value,
+        (1, 1, 1, 1, 1): Score.HIGH_CARD.value,
     }
 
     def get_score(self, counts, is_straight, is_flush):
         return max(
             self.count_rankings[counts],
-            self.Scores.STRAIGH.value * is_straight
-            + self.Scores.FLUSH.value * is_flush,
+            self.Score.STRAIGH.value * is_straight
+            + self.Score.FLUSH.value * is_flush,
         )
 
     def limit_counts(self, counts, n=5):
@@ -89,7 +89,7 @@ class Poker:
         print("shared: ", shared)
         hands = [private + shared for private in players_cards]
         winners, (score, ranks) = self.allmax(hands, key=self.hand_rank)
-        print(f"The winner is {winners} with {self.Scores(score).name}, {ranks}!")
+        print(f"The winner is {winners} with {self.Score(score).name}, {ranks}!")
 
     def showdown(self, players, shared_cards):
         players_by_cards = {tuple(player.cards + shared_cards):player for player in players}

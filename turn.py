@@ -1,15 +1,15 @@
-from player import Player
+from player import Player, Action
 from poker import Poker
 from enum import Enum
 
 
-class Statuses(Enum):
+class Status(Enum):
     UPCOMING = "upcoming"
     ONGOING = "ongoing"
     COMPLETED = "completed"
 
 
-class Turns(Enum):
+class TexasHoldEmTurn(Enum):
     BLIND = "blind"
     FLOP = "flop"
     TURN = "turn"
@@ -19,7 +19,7 @@ class Turns(Enum):
 class PokerTurn:
     def __init__(self, name):
         self.name = name
-        self.status = Statuses.UPCOMING
+        self.status = Status.UPCOMING
         self.bets = {}
 
     def start(self, players, deck, first_player):
@@ -27,7 +27,7 @@ class PokerTurn:
         self.players = players
         assert first_player in players
         self.first_player = first_player
-        self.status = Statuses.ONGOING
+        self.status = Status.ONGOING
         self.bets = {player: 0 for player in self.players}
         self.current_player = self.first_player
         self.calling_players = set()
@@ -35,7 +35,7 @@ class PokerTurn:
         return [], deck
 
     def end(self):
-        self.status = Statuses.COMPLETED
+        self.status = Status.COMPLETED
 
     def get_bet(self):
         return max(bet for player, bet in self.bets.items())
@@ -66,15 +66,15 @@ class PokerTurn:
             print("Unavailable action, try again")
             return
 
-        all_in_call = action == Player.Actions.ALL_IN and self.bets[player] + bet == turn_bet
+        all_in_call = action == Action.ALL_IN and self.bets[player] + bet == turn_bet
 
-        if action in [Player.Actions.CALL, Player.Actions.CHECK] or all_in_call:
+        if action in [Action.CALL, Action.CHECK] or all_in_call:
             self.calling_players.add(player)
         if action in [
-            Player.Actions.CALL,
-            Player.Actions.RAISE,
-            Player.Actions.BET,
-            Player.Actions.ALL_IN,
+            Action.CALL,
+            Action.RAISE,
+            Action.BET,
+            Action.ALL_IN,
         ]:
             self.bets[player] += bet
 
@@ -99,7 +99,7 @@ class PokerTurn:
 
 class Blind(PokerTurn):
     def __init__(self):
-        super().__init__(Turns.BLIND)
+        super().__init__(TexasHoldEmTurn.BLIND)
 
     def start(self, players, deck, first_player, dealer=None, small_blind=10):
         self.dealer = dealer or players[0]
@@ -131,7 +131,7 @@ class Blind(PokerTurn):
 
 class Flop(PokerTurn):
     def __init__(self):
-        super().__init__(Turns.FLOP)
+        super().__init__(TexasHoldEmTurn.FLOP)
 
     def start(self, players, deck, first_player):
         super().start(players, deck, first_player=first_player)
@@ -146,7 +146,7 @@ class Flop(PokerTurn):
 
 class Turn(PokerTurn):
     def __init__(self):
-        super().__init__(Turns.TURN)
+        super().__init__(TexasHoldEmTurn.TURN)
 
     def start(self, players, deck, first_player):
         super().start(players, deck, first_player=first_player)
@@ -161,7 +161,7 @@ class Turn(PokerTurn):
 
 class River(PokerTurn):
     def __init__(self):
-        super().__init__(Turns.RIVER)
+        super().__init__(TexasHoldEmTurn.RIVER)
 
     def start(self, players, deck, first_player):
         super().start(players, deck, first_player=first_player)

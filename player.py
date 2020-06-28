@@ -2,15 +2,16 @@ from random import choice
 from enum import Enum
 
 
-class Player:
-    class Actions(Enum):
-        FOLD = "fold"
-        CHECK = "check"
-        CALL = "call"
-        BET = "bet"
-        RAISE = "raise"
-        ALL_IN = "all in"
+class Action(Enum):
+    FOLD = "fold"
+    CHECK = "check"
+    CALL = "call"
+    BET = "bet"
+    RAISE = "raise"
+    ALL_IN = "all in"
 
+
+class Player:
     def __init__(self, name=None, money=1000):
         self.money = money
         self.cards = []
@@ -29,14 +30,14 @@ class Player:
 
     def _available_actions(self, turn_bet, player_bet):
         return [
-            self.Actions.FOLD if turn_bet > player_bet else None,
-            self.Actions.CALL if self._can_call(turn_bet, player_bet) else None,
-            self.Actions.BET
+            Action.FOLD if turn_bet > player_bet else None,
+            Action.CALL if self._can_call(turn_bet, player_bet) else None,
+            Action.BET
             if self.money > 0 and self._can_check(turn_bet, player_bet)
             else None,
-            self.Actions.RAISE if self._can_call(turn_bet, player_bet) else None,
-            self.Actions.CHECK if self._can_check(turn_bet, player_bet) else None,
-            self.Actions.ALL_IN if turn_bet >= player_bet and self.money > 0 else None,
+            Action.RAISE if self._can_call(turn_bet, player_bet) else None,
+            Action.CHECK if self._can_check(turn_bet, player_bet) else None,
+            Action.ALL_IN if turn_bet >= player_bet and self.money > 0 else None,
         ]
 
     def _can_call(self, turn_bet, player_bet):
@@ -53,16 +54,20 @@ class Player:
     def do(self, action, turn_bet, player_bet):
         if action in self._available_actions(turn_bet, player_bet):
             print(f"{self.name} {action.value}ed")
-            if action == self.Actions.FOLD:
+            if action == Action.FOLD:
                 self.cards = []
                 return -1
-            if action == self.Actions.CALL:
+            if action == Action.CALL:
                 return self.bet(turn_bet - player_bet)
-            if action == self.Actions.BET:
+            if action == Action.BET:
                 return self.bet(int(input("Bet: ")))
-            if action == self.Actions.RAISE:
-                return turn_bet - player_bet + self.bet(int(input(f"Raise: {turn_bet} + ")))
-            if action == self.Actions.CHECK:
+            if action == Action.RAISE:
+                return (
+                    turn_bet
+                    - player_bet
+                    + self.bet(int(input(f"Raise: {turn_bet} + ")))
+                )
+            if action == Action.CHECK:
                 return 0
-            if action == self.Actions.ALL_IN:
+            if action == Action.ALL_IN:
                 return self.bet(self.money)

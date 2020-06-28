@@ -1,6 +1,6 @@
-from player import Player
+from player import Player, Action
 from poker import Poker
-from turn import Turn, Statuses, TEXAS_HOLD_EM_TURNS
+from turn import Status, TEXAS_HOLD_EM_TURNS
 from enum import Enum
 from functools import reduce
 
@@ -32,7 +32,7 @@ class Round:
 
     def _start_next_turn(self, players, deck, first_player):
         upcoming_rounds = [
-            turn for turn in self.turns if turn.status == Statuses.UPCOMING
+            turn for turn in self.turns if turn.status == Status.UPCOMING
         ]
         if not upcoming_rounds:
             self.showdown()
@@ -54,7 +54,7 @@ class Round:
         print(f"Shared cards: {', '.join(self.shared_cards)}")
         print("\n".join(str(p) for p in players))
         print(
-            f"The winner {'is' if len(winners) == 1 else 'are'} {' and '.join([p.name for p in winners])} with {Poker.Scores(score).name}!"
+            f"The winner {'is' if len(winners) == 1 else 'are'} {' and '.join([p.name for p in winners])} with {Poker.Score(score).name}!"
         )
 
     def _end_this_turn(self):
@@ -100,7 +100,7 @@ class Round:
 
     def prompt_for_action(self):
         try:
-            action = Player.Actions(
+            action = Action(
                 input(
                     f"Actions: [{', '.join(action.value for action in self.actions())}]: "
                 )
@@ -109,8 +109,6 @@ class Round:
         except ValueError as e:
             print(str(e), "Please try again")
             self.prompt_for_action
-        
-
 
     def do(self, action, player=None, turn=None):
         turn = turn or self.current_turn
