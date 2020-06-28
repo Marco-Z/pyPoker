@@ -32,8 +32,7 @@ class Poker:
     def get_score(self, counts, is_straight, is_flush):
         return max(
             self.count_rankings[counts],
-            self.Score.STRAIGH.value * is_straight
-            + self.Score.FLUSH.value * is_flush,
+            self.Score.STRAIGH.value * is_straight + self.Score.FLUSH.value * is_flush,
         )
 
     def limit_counts(self, counts, n=5):
@@ -92,8 +91,12 @@ class Poker:
         print(f"The winner is {winners} with {self.Score(score).name}, {ranks}!")
 
     def showdown(self, players, shared_cards):
-        players_by_cards = {tuple(player.cards + shared_cards):player for player in players}
-        winner_hands, (score, ranks) = self.allmax(players_by_cards.keys(), key=self.hand_rank)
+        players_by_cards = {
+            tuple(player.cards + shared_cards): player for player in players
+        }
+        winner_hands, (score, ranks) = self.allmax(
+            players_by_cards.keys(), key=self.hand_rank
+        )
         winners = [players_by_cards[tuple(winner_hand)] for winner_hand in winner_hands]
         return winners, score, ranks
 
