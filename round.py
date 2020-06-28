@@ -98,6 +98,19 @@ class Round:
     def get_pot(self):
         return sum(self.get_total_bet_of_players().values())
 
+    def early_winner(self):
+        self.is_finished = True
+        in_game_players = self.in_game_players()
+        assert len(in_game_players) == 1
+        display = [
+            "=" * 80,
+            "Everybody else folded",
+            "=" * 80,
+            f"Shared cards: {', '.join(self.shared_cards)}" if self.shared_cards else None,
+            f"The winner is {in_game_players[0].name}!"
+        ]
+        print("\n".join([line for line in display if line]))
+
     def prompt_for_action(self):
         input_action = input(
             f"Actions: [{', '.join(action.value for action in self.actions())}]: "
@@ -107,6 +120,8 @@ class Round:
             return self.prompt_for_action()
 
         self.do(Action(input_action))
+        if len(self.in_game_players()) == 1:
+            return self.early_winner()
 
     def do(self, action, player=None, turn=None):
         turn = turn or self.current_turn
