@@ -99,16 +99,14 @@ class Round:
         return sum(self.get_total_bet_of_players().values())
 
     def prompt_for_action(self):
-        try:
-            action = Action(
-                input(
-                    f"Actions: [{', '.join(action.value for action in self.actions())}]: "
-                )
-            )
-            self.do(action)
-        except ValueError as e:
-            print(str(e), "Please try again")
-            self.prompt_for_action
+        input_action = input(
+            f"Actions: [{', '.join(action.value for action in self.actions())}]: "
+        )
+        if input_action not in [a.value for a in Action]:
+            print(f"{input_action} is not a valid action, please try again")
+            return self.prompt_for_action()
+
+        self.do(Action(input_action))
 
     def do(self, action, player=None, turn=None):
         turn = turn or self.current_turn
