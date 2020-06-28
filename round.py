@@ -122,17 +122,20 @@ class Round:
         self.do(Action(input_action))
         if len(self.in_game_players()) == 1:
             return self.early_winner()
-
-    def do(self, action, player=None, turn=None):
-        turn = turn or self.current_turn
-        player = player or turn.current_player
-        turn.do(action, player=player)
+        self.update_turn_status()
+    
+    def update_turn_status(self):
         if self.current_turn.is_completed():
             self._end_this_turn()
             shared_cards, self.deck = self._start_next_turn(
                 self.in_game_players(), self.deck, self.starting_player()
             )
             self.shared_cards += shared_cards
+
+    def do(self, action, player=None, turn=None):
+        turn = turn or self.current_turn
+        player = player or turn.current_player
+        turn.do(action, player=player)
 
     def in_game_players(self):
         return [player for player in self.players if player.cards]
