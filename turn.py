@@ -21,6 +21,7 @@ class PokerTurn:
         self.name = name
         self.status = Status.UPCOMING
         self.bets = {}
+        self.title = name
 
     def start(self, players, deck, first_player):
         self.deck = deck
@@ -32,7 +33,7 @@ class PokerTurn:
         self.current_player = self.first_player
         self.calling_players = set()
 
-        return [], deck
+        print(self)
 
     def end(self):
         self.status = Status.COMPLETED
@@ -61,7 +62,9 @@ class PokerTurn:
     def is_completed(self):
         are_all_players_calling = set(self.in_game_players()) == self.calling_players
         are_all_bets_even = self.is_even()
-        return (are_all_bets_even and are_all_players_calling) or (are_all_bets_even and len(self.playing_players()) < 2)
+        return (are_all_bets_even and are_all_players_calling) or (
+            are_all_bets_even and len(self.playing_players()) < 2
+        )
 
     def do(self, action, player=None):
         player = player or self.current_player
@@ -101,10 +104,20 @@ class PokerTurn:
             % len(in_game_players_and_current)
         ]
 
+    def __repr__(self):
+        info = ": ".join(
+            v for v in [str(self.title), ", ".join(self.shared_cards)] if v
+        )
+        return "\n".join(["=" * 80, info, "=" * 80])
+
+    def __str__(self):
+        return self.__repr__()
+
 
 class Blind(PokerTurn):
     def __init__(self):
         super().__init__(TexasHoldEmTurn.BLIND)
+        self.title = "Place your bets!"
 
     def start(self, players, deck, first_player, dealer=None, small_blind=10):
         self.dealer = dealer or players[0]
@@ -122,61 +135,50 @@ class Blind(PokerTurn):
         rest_of_the_deck = Poker.deal(players, deck=deck)
 
         first_player = players[(big_blind_player_idx + 1) % len(players)]
+        self.shared_cards = []
         super().start(players, rest_of_the_deck, first_player=first_player)
 
         self.bets[self.small_blind_player] += self.small_blind_player.bet(
             self.small_blind
         )
         self.bets[self.big_blind_player] += self.big_blind_player.bet(self.big_blind)
-
-        print("\n".join(["=" * 80, "Place your bets!", "=" * 80]))
-
-        return [], rest_of_the_deck
+        return self.shared_cards, rest_of_the_deck
 
 
 class Flop(PokerTurn):
     def __init__(self):
         super().__init__(TexasHoldEmTurn.FLOP)
+        self.title = "The Flop"
 
     def start(self, players, deck, first_player):
-        super().start(players, deck, first_player=first_player)
-
         deck.pop(0)  # Discard one
-        self.flop, rest_of_the_deck = deck[:3], deck[3:]
-
-        print("\n".join(["=" * 80, "The flop", "=" * 80]))
-
-        return self.flop, rest_of_the_deck
+        self.shared_cards, rest_of_the_deck = deck[:3], deck[3:]
+        super().start(players, deck, first_player=first_player)
+        return self.shared_cards, rest_of_the_deck
 
 
 class Turn(PokerTurn):
     def __init__(self):
         super().__init__(TexasHoldEmTurn.TURN)
+        self.title = "The Turn"
 
     def start(self, players, deck, first_player):
-        super().start(players, deck, first_player=first_player)
-
         deck.pop(0)  # Discard one
-        self.turn = [deck.pop(0)]
-
-        print("\n".join(["=" * 80, "The turn", "=" * 80]))
-
-        return self.turn, deck
+        self.shared_cards = [deck.pop(0)]
+        super().start(players, deck, first_player=first_player)
+        return self.shared_cards, deck
 
 
 class River(PokerTurn):
     def __init__(self):
         super().__init__(TexasHoldEmTurn.RIVER)
+        self.title = "And the River!"
 
     def start(self, players, deck, first_player):
-        super().start(players, deck, first_player=first_player)
-
         deck.pop(0)  # Discard one
-        self.river = [deck.pop(0)]
-
-        print("\n".join(["=" * 80, "And the river!", "=" * 80]))
-
-        return self.river, deck
+        self.shared_cards = [deck.pop(0)]
+        super().start(players, deck, first_player=first_player)
+        return self.shared_cards, deck
 
 
 TEXAS_HOLD_EM_TURNS = [Blind(), Flop(), Turn(), River()]
