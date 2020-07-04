@@ -109,6 +109,8 @@ class Round:
         self.is_finished = True
         in_game_players = self.in_game_players()
         assert len(in_game_players) == 1
+        winner = in_game_players[0]
+        winner.money += self.get_pot()
         display = [
             "=" * 80,
             "Everybody else folded",
@@ -116,7 +118,7 @@ class Round:
             f"Shared cards: {', '.join(self.shared_cards)}"
             if self.shared_cards
             else None,
-            f"The winner is {in_game_players[0].name}!",
+            f"The winner is {winner.name}!",
         ]
         print("\n".join([line for line in display if line]))
 
