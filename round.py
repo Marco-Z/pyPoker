@@ -56,14 +56,55 @@ class Round:
         print("\n".join(["=" * 80, "Showdown", "=" * 80]))
         winners, score, ranks = Poker().showdown(players, self.shared_cards)
 
-        prize = self.get_pot() / len(winners)
-        for player in winners:
-            player.money += prize
+        self.split_money()
 
         print(f"Shared cards: {', '.join(self.shared_cards)}")
         print("\n".join(str(p) for p in players))
         print(
             f"The winner {'is' if len(winners) == 1 else 'are'} {' and '.join([p.name for p in winners])} with {Poker.Score(score).name}!"
+        )
+
+    def split_money(
+        self, players=None, bets_of_players=None, original_bets_of_players=None
+    ):
+        players = players or self.in_game_players()
+        bets_of_players = (
+            bets_of_players
+            if bets_of_players is not None
+            else self.get_total_bets_of_players()
+        )
+        original_bets_of_players = (
+            original_bets_of_players
+            if original_bets_of_players is not None
+            else self.get_total_bets_of_players()
+        )
+        money = sum(bets_of_players.values())
+        if money <= 0:
+            return
+        winners, score, ranks = Poker().showdown(players, self.shared_cards)
+
+        other_players = set(players) - set(winners)
+        bets_of_other_players = {o: bets_of_players[o] for o in other_players}
+        bets_of_winners = {w: bets_of_players[w] for w in winners}
+
+        # each winner gets back his own money
+        for w in winners:
+            w.money += bets_of_winners[w]
+            bets_of_players[w] = 0
+
+        # each winner gets back his own money from the other players
+        for w, w_bet in bets_of_winners.items():
+            prize = 0
+            for o, o_bet in bets_of_other_players.items():
+                prize_from_player = min(o_bet, original_bets_of_players[w])
+                bets_of_other_players[o] -= prize_from_player
+                w.money += prize_from_player
+
+        # repeat among the remaining players until all money has been split
+        self.split_money(
+            players=other_players,
+            bets_of_players=bets_of_other_players,
+            original_bets_of_players=original_bets_of_players,
         )
 
     def _end_this_turn(self):
