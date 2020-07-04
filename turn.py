@@ -59,10 +59,13 @@ class PokerTurn:
     def playing_players(self):
         return [p for p in self.in_game_players() if not p.is_all_in()]
 
+    def all_in_players(self):
+        return [p for p in self.in_game_players() if p.is_all_in()]
+
     def is_completed(self):
         are_all_players_calling = set(self.in_game_players()) == self.calling_players
         are_all_bets_even = self.is_even()
-        return (are_all_bets_even and are_all_players_calling) or (
+        return are_all_players_calling or (
             are_all_bets_even and len(self.playing_players()) < 2
         )
 
@@ -74,7 +77,7 @@ class PokerTurn:
             print("Unavailable action, try again")
             return
 
-        all_in_call = action == Action.ALL_IN and self.bets[player] + bet == turn_bet
+        all_in_call = action == Action.ALL_IN and self.bets[player] + bet <= turn_bet
 
         if action in [Action.CALL, Action.CHECK] or all_in_call:
             self.calling_players.add(player)
@@ -87,7 +90,7 @@ class PokerTurn:
             self.bets[player] += bet
 
         if self.bets[player] > turn_bet:
-            self.calling_players = set([player])
+            self.calling_players = set([player] + self.all_in_players())
         self.finish_player_turn()
 
     def finish_player_turn(self):
@@ -97,7 +100,8 @@ class PokerTurn:
         in_game_players_and_current = [
             player
             for player in self.players
-            if player == self.current_player or player.cards
+            if player == self.current_player
+            or (player.cards and not player.is_all_in())
         ]
         return in_game_players_and_current[
             (in_game_players_and_current.index(self.current_player) + 1)

@@ -29,12 +29,10 @@ class Player:
         return [
             Action.FOLD if turn_bet > player_bet else None,
             Action.CALL if self._can_call(turn_bet, player_bet) else None,
-            Action.BET
-            if self.money > 0 and self._can_check(turn_bet, player_bet)
-            else None,
+            Action.BET if self._can_bet(turn_bet, player_bet) else None,
             Action.RAISE if self._can_call(turn_bet, player_bet) else None,
             Action.CHECK if self._can_check(turn_bet, player_bet) else None,
-            Action.ALL_IN if turn_bet >= player_bet and self.money > 0 else None,
+            Action.ALL_IN if self._can_all_in(turn_bet, player_bet) else None,
         ]
 
     def is_all_in(self):
@@ -45,6 +43,12 @@ class Player:
 
     def _can_check(self, turn_bet, player_bet):
         return turn_bet == player_bet
+
+    def _can_bet(self, turn_bet, player_bet):
+        return self.money > 0 and self._can_check(turn_bet, player_bet)
+
+    def _can_all_in(self, turn_bet, player_bet):
+        return turn_bet >= player_bet and self.money > 0
 
     def actions(self, turn_bet, player_bet):
         return [
