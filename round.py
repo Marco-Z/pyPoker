@@ -98,16 +98,16 @@ class Round:
         player = player or turn.current_player
         return turn.bets[player]
 
-    def get_total_bet_of_players(self):
+    def get_total_bets_of_players(self):
         merge = lambda x, y: {k: x.get(k, 0) + y.get(k, 0) for k in set(x) | set(y)}
         return reduce(merge, [turn.bets for turn in self.turns])
 
     def get_total_bet_of_player(self, player=None):
         player = player or self.current_turn.current_player
-        return self.get_total_bet_of_players().get(player)
+        return self.get_total_bets_of_players().get(player)
 
     def get_pot(self):
-        return sum(self.get_total_bet_of_players().values())
+        return sum(self.get_total_bets_of_players().values())
 
     def early_winner(self):
         self.is_finished = True
