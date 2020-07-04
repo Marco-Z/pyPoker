@@ -35,6 +35,9 @@ class Game:
         else:
             self.dealer = self.get_next_dealer()
 
+    def display_winner(self):
+        winner = sorted(self.players, key=lambda p: p.money, reverse=True)[0]
+        print("\n".join(["-" * 80, f"The winner is {winner.name}!", "-" * 80]))
 
     def play(self):
         while len(self.get_players_with_money()) > 1:
