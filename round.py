@@ -70,7 +70,9 @@ class Round:
         self.current_turn.end()
 
     def start(self):
-        shared_cards, self.deck = self._start_next_turn(self.players, Poker.DECK, None)
+        shared_cards, self.deck = self._start_next_turn(
+            self.players, Poker.DECK, self.dealer
+        )
         self.shared_cards += shared_cards
 
     def starting_player(self):

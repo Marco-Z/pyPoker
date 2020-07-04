@@ -117,7 +117,7 @@ class Blind(PokerTurn):
         self.small_blind = small_blind
         self.title = "Place your bets!"
 
-    def start(self, players, deck, first_player, dealer=None):
+    def start(self, players, deck, dealer):
         self.dealer = dealer or players[0]
         assert self.dealer in players
         dealer_idx = players.index(self.dealer)
