@@ -13,19 +13,21 @@ class Round:
         River(),
     ]
 
-    def __init__(self, players=[Player(), Player()], small_blind=10):
+    def __init__(self, players=[Player(), Player()], dealer=None, small_blind=10):
         assert len(players) >= 2
         self.is_finished = False
 
         self.players = players
 
-        self.dealer = players[0]
+        self.dealer = dealer or players[0]
+        assert self.dealer in players
+        dealer_index = self.players.index(self.dealer)
 
-        small_blind_player_idx = 1 % len(players)
+        small_blind_player_idx = (dealer_index + 1) % len(players)
         self.small_blind_player = players[small_blind_player_idx]
         self.small_blind = small_blind
 
-        big_blind_player_idx = 2 % len(players)
+        big_blind_player_idx = (dealer_index + 2) % len(players)
         self.big_blind_player = players[big_blind_player_idx]
         self.big_blind = 2 * small_blind
 
