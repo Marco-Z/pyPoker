@@ -104,14 +104,11 @@ class PokerTurn:
             % len(in_game_players_and_current)
         ]
 
-    def __repr__(self):
+    def __str__(self):
         info = ": ".join(
             v for v in [str(self.title), ", ".join(self.shared_cards)] if v
         )
         return "\n".join(["=" * 80, info, "=" * 80])
-
-    def __str__(self):
-        return self.__repr__()
 
 
 class Blind(PokerTurn):

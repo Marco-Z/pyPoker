@@ -170,7 +170,7 @@ class Round:
             ]
         )
 
-    def __repr__(self):
+    def __str__(self):
         standings = self._standings()
         # last = f"Last betting player: {self.last_betting_player.name}"
         shared = (
@@ -183,6 +183,3 @@ class Round:
         info = [value for value in [standings, shared, pot] if value]
 
         return "\n".join(info)
-
-    def __str__(self):
-        return self.__repr__()

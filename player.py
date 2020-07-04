@@ -22,11 +22,8 @@ class Player:
         self.money -= bet_amount
         return bet_amount
 
-    def __repr__(self):
-        return f"{self.name}: Cards: {' '.join(self.cards) if self.cards else 'None'}, Money: {str(self.money).rjust(4)}$"
-
     def __str__(self):
-        return self.__repr__()
+        return f"{self.name}: Cards: {' '.join(self.cards) if self.cards else 'None'}, Money: {str(self.money).rjust(4)}$"
 
     def _available_actions(self, turn_bet, player_bet):
         return [
