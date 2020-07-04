@@ -112,22 +112,22 @@ class PokerTurn:
 
 
 class Blind(PokerTurn):
-    def __init__(self):
+    def __init__(self, small_blind=10):
         super().__init__(TexasHoldEmTurn.BLIND)
+        self.small_blind = small_blind
         self.title = "Place your bets!"
 
-    def start(self, players, deck, first_player, dealer=None, small_blind=10):
+    def start(self, players, deck, first_player, dealer=None):
         self.dealer = dealer or players[0]
         assert self.dealer in players
         dealer_idx = players.index(self.dealer)
 
         small_blind_player_idx = (dealer_idx + 1) % len(players)
         self.small_blind_player = players[small_blind_player_idx]
-        self.small_blind = small_blind
 
         big_blind_player_idx = (dealer_idx + 2) % len(players)
         self.big_blind_player = players[big_blind_player_idx]
-        self.big_blind = 2 * small_blind
+        self.big_blind = 2 * self.small_blind
 
         rest_of_the_deck = Poker.deal(players, deck=deck)
 
@@ -176,6 +176,3 @@ class River(PokerTurn):
         self.shared_cards = [deck.pop(0)]
         super().start(players, deck, first_player=first_player)
         return self.shared_cards, deck
-
-
-TEXAS_HOLD_EM_TURNS = [Blind(), Flop(), Turn(), River()]

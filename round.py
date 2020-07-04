@@ -1,11 +1,18 @@
 from player import Player, Action
 from poker import Poker
-from turn import Status, TEXAS_HOLD_EM_TURNS
+from turn import Status, Blind, Flop, Turn, River
 from enum import Enum
 from functools import reduce
 
 
 class Round:
+    TEXAS_HOLD_EM_TURNS = lambda small_blind: [
+        Blind(small_blind=small_blind),
+        Flop(),
+        Turn(),
+        River(),
+    ]
+
     def __init__(self, players=[Player(), Player()], small_blind=10):
         assert len(players) >= 2
         self.is_finished = False
@@ -24,7 +31,7 @@ class Round:
 
         self.deck = Poker.DECK
         self.shared_cards = []
-        self.turns = TEXAS_HOLD_EM_TURNS
+        self.turns = Round.TEXAS_HOLD_EM_TURNS(small_blind)
         self.start_list = (
             self.players[small_blind_player_idx:]
             + self.players[:small_blind_player_idx]
@@ -169,6 +176,15 @@ class Round:
                 for player in self.in_game_players()
             ]
         )
+
+    def play(self):
+        self.start()
+        while not self.is_finished:
+
+            print(self)
+            print()
+
+            self.prompt_for_action()
 
     def __str__(self):
         standings = self._standings()
